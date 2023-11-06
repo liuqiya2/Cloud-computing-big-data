@@ -1,0 +1,372 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Restaurant Buddy API
+basePath: /v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /login:
+    post:
+      summary: User login
+      operationId: loginUser
+      parameters:
+        - in: body
+          name: body
+          description: Login credentials
+          required: true
+          schema:
+            $ref: '#/definitions/Login'
+      responses:
+        '200':
+          description: Login successful
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: Authorization token
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+  /user-profile:
+    post:
+      summary: Create a new user profile
+      operationId: createUserProfile
+      parameters:
+        - in: body
+          name: body
+          description: User profile information
+          required: true
+          schema:
+            $ref: '#/definitions/UserProfile'
+      responses:
+        '200':
+          description: User profile created successfully
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Edit user profile
+      operationId: editUserProfile
+      parameters:
+        - in: body
+          name: body
+          description: Updated user profile details
+          required: true
+          schema:
+            $ref: '#/definitions/UserProfile'
+      responses:
+        '200':
+          description: User profile updated successfully
+        '400':
+          description: Bad Request
+        '404':
+          description: User profile not found
+        '500':
+          description: Internal Server Error
+  /restaurant:
+    get:
+      summary: Search for restaurants
+      operationId: searchRestaurants
+      parameters:
+        - name: query
+          in: query
+          description: Search query for restaurants
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Restaurant'
+        '400':
+          description: Bad Request
+        '500':
+          description: Internal Server Error
+    put:
+      summary: Edit restaurant details
+      operationId: editRestaurant
+      parameters:
+        - in: body
+          name: body
+          description: Updated restaurant details
+          required: true
+          schema:
+            $ref: '#/definitions/Restaurant'
+      responses:
+        '200':
+          description: Restaurant details updated successfully
+        '400':
+          description: Bad Request
+        '404':
+          description: Restaurant not found
+        '500':
+          description: Internal Server Error
+  /restaurant/{restaurantId}/interest:
+    post:
+      summary: Mark interest to enjoy the restaurant with a buddy
+      operationId: interestRestaurant
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          type: string
+          description: Unique identifier of the restaurant
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - userId
+            properties:
+              userId:
+                type: string
+                description: Unique identifier of the user liking the restaurant
+      responses:
+        '200':
+          description: Restaurant liked successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Restaurant not found
+        '500':
+          description: Internal Server Error
+  /restaurant/{restaurantId}/rate:
+    post:
+      summary: Rate a restaurant
+      operationId: rateRestaurant
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          type: string
+          description: Unique identifier of the restaurant
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - userId
+            properties:
+              userId:
+                type: string
+                description: Unique identifier of the user liking the restaurant
+              rating:
+                type: number
+                format: float
+                description: Rating given to the restaurant
+                minimum: 0
+                maximum: 5
+      responses:
+        '200':
+          description: Restaurant rated successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Restaurant not found
+        '500':
+          description: Internal Server Error
+  /restaurant/{restaurantId}/comment:
+    post:
+      summary: Comment a restaurant
+      operationId: commentRestaurant
+      parameters:
+        - name: restaurantId
+          in: path
+          required: true
+          type: string
+          description: Unique identifier of the restaurant
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            required:
+              - userId
+            properties:
+              userId:
+                type: string
+                description: Unique identifier of the user liking the restaurant
+              comment:
+                type: string
+                description: Comment given to the restaurant
+      responses:
+        '200':
+          description: Restaurant commented successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Restaurant not found
+        '500':
+          description: Internal Server Error
+  /user-profile/{userId}/rate:
+    post:
+      summary: Rate a buddy under its user profile
+      operationId: rateUserProfile
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          type: string
+          description: Unique identifier of the user to rate
+        - in: body
+          name: body
+          required: true
+          schema:
+            required:
+              - raterId
+              - rating
+            properties:
+              userId:
+                type: string
+                description: Unique identifier of the user giving the rating
+              rating:
+                type: number
+                format: float
+                description: Rating given to the user
+                minimum: 0
+                maximum: 5
+      responses:
+        '200':
+          description: User rated successfully
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: User profile not found
+        '500':
+          description: Internal Server Error
+definitions:
+  Login:
+    type: object
+    required:
+      - username
+      - password
+    properties:
+      username:
+        type: string
+        description: User name
+      password:
+        type: string
+        description: User password
+        format: password
+  UserProfile:
+    type: object
+    required:
+      - userId
+      - name
+    properties:
+      userId:
+        type: string
+        description: Unique user ID
+      name:
+        type: string
+        description: User name
+      preferences:
+        type: array
+        items:
+          type: string
+        description: List of dining preferences
+      instagramLink:
+        type: string
+        description: Link to Instagram profile
+      searchHistory:
+        type: array
+        items:
+          type: string
+        description: List of user's past search queries
+      rating:
+        type: number
+        format: float
+        description: Average rating of the user
+      ratingsReceived:
+        type: array
+        items:
+          $ref: '#/definitions/UserRating'
+  Restaurant:
+    type: object
+    required:
+      - restaurantId
+      - name
+    properties:
+      restaurantId:
+        type: string
+        description: Unique restaurant ID
+      name:
+        type: string
+        description: Restaurant name
+      address:
+        type: string
+        description: Restaurant address
+      contactDetails:
+        type: string
+        description: Contact details of the restaurant
+      openingHours:
+        type: string
+        description: Opening hours of the restaurant
+      cuisineType:
+        type: string
+        description: Type of cuisine offered by the restaurant
+      priceRange:
+        type: string
+        description: Price range of the restaurant
+      rating:
+        type: number
+        format: float
+        description: Rating of the restaurant
+      comments:
+        type: array
+        items:
+          $ref: '#/definitions/Comment'
+      interestedUserID:
+        type: array
+        items:
+          type: string
+        description: List of user IDs who liked the restaurant
+  Comment:
+    type: object
+    required:
+      - username
+      - comment
+    properties:
+      username:
+        type: string
+        description: The username of the user who commented
+      comment:
+        type: string
+        description: The comment text
+  UserRating:
+    type: object
+    required:
+      - userId
+      - rating
+    properties:
+      userId:
+        type: string
+        description: ID of the user who gave the rating
+      rating:
+        type: number
+        format: float
+        description: Rating given to the user
+        minimum: 0
+        maximum: 5
